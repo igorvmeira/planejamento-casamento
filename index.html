@@ -237,9 +237,9 @@
 
   const FB_READY = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_AQUI";
   const root = document.getElementById('content');
-  let db, docRef, lastRev = null, pendingRemote = null, saveTimer = null, online = false;
+  let db, docRef, lastRev = null, pendingRemote = null, saveTimer = null, online = false, loadedRemote = false;
 
-  let state = { weddingDate: 'Janeiro de 2028', items: [], payments: [] };
+  let state = { weddingDate: '22 de janeiro de 2028', items: [], payments: [] };
   const uid = () => Math.random().toString(36).slice(2, 9);
   const brl = (n) => (isFinite(n) ? n : 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const parseNum = (v) => {
@@ -248,7 +248,51 @@
     const c = String(v).replace(/[^\d.,-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.');
     const n = parseFloat(c); return isFinite(n) ? n : 0;
   };
-  const CATS = ['Local & Cerimônia','Vestido & Traje','Decoração','Buffet & Bar','Música & Banda','Fotografia & Vídeo','Convites & Papelaria','Padrinhos','Bolo & Doces','Lua de mel','Outros'];
+  const CATS = ['Cerimônia & Assessoria','Local & Estrutura','Buffet & Bar','Decoração','Música & Show','Fotografia & Vídeo','Vestido & Traje','Beleza','Bolo & Doces','Convites & Papelaria','Padrinhos','Lembranças & Detalhes','Lua de mel','Outros'];
+
+  // Itens pré-cadastrados (baseados em um casamento real, sem valores — só pra servir de checklist).
+  const DEFAULT_ITEMS = [
+    ['Assessoria / cerimonial', 'Cerimônia & Assessoria'],
+    ['Celebrante / cerimônia', 'Cerimônia & Assessoria'],
+    ['Casamento no civil', 'Cerimônia & Assessoria'],
+    ['Local da festa', 'Local & Estrutura'],
+    ['Som e estrutura', 'Local & Estrutura'],
+    ['Gerador', 'Local & Estrutura'],
+    ['Tenda / estrutura de praia', 'Local & Estrutura'],
+    ['Banheiros e limpeza', 'Local & Estrutura'],
+    ['Segurança', 'Local & Estrutura'],
+    ['Buffet', 'Buffet & Bar'],
+    ['Bar de drinks', 'Buffet & Bar'],
+    ['Comida de madrugada', 'Buffet & Bar'],
+    ['Bafômetro', 'Buffet & Bar'],
+    ['Decoração', 'Decoração'],
+    ['Velas e aromas', 'Decoração'],
+    ['Banda / música da cerimônia', 'Música & Show'],
+    ['Atração / show da festa', 'Música & Show'],
+    ['Foto pré-wedding', 'Fotografia & Vídeo'],
+    ['Fotografia do casamento', 'Fotografia & Vídeo'],
+    ['Filmagem', 'Fotografia & Vídeo'],
+    ['Telão / imagens da festa', 'Fotografia & Vídeo'],
+    ['Vestido da noiva', 'Vestido & Traje'],
+    ['Traje do noivo', 'Vestido & Traje'],
+    ['Robe da noiva', 'Vestido & Traje'],
+    ['Roupas das daminhas', 'Vestido & Traje'],
+    ['Maquiagem e cabelo', 'Beleza'],
+    ['Bolo', 'Bolo & Doces'],
+    ['Doces', 'Bolo & Doces'],
+    ['Bem-casados', 'Bolo & Doces'],
+    ['Forminhas de doces', 'Bolo & Doces'],
+    ['Convites', 'Convites & Papelaria'],
+    ['Papelaria (menu, placas, tags)', 'Convites & Papelaria'],
+    ['Trajes / gravatas dos padrinhos', 'Padrinhos'],
+    ['Caixas / lembrança dos padrinhos', 'Padrinhos'],
+    ['Chinelos para convidados', 'Lembranças & Detalhes'],
+    ['Kit toalete (necessaire)', 'Lembranças & Detalhes'],
+    ['Relicário e terço', 'Lembranças & Detalhes'],
+    ['Alianças', 'Outros'],
+    ['Lua de mel', 'Lua de mel'],
+  ];
+  function buildDefaultItems() { return DEFAULT_ITEMS.map(([name, category]) => ({ id: uid(), name, category, estimated: '', paid: '' })); }
 
   // ---------- Backend (Firestore) ----------
   function normalize(d) { return { weddingDate: d.weddingDate || '', items: Array.isArray(d.items) ? d.items : [], payments: Array.isArray(d.payments) ? d.payments : [] }; }
@@ -270,7 +314,7 @@
       await new Promise((res) => onAuthStateChanged(auth, (u) => u && res()));
       docRef = doc(db, 'casamento', 'dados');
       const snap = await getDoc(docRef);
-      if (snap.exists()) state = normalize(snap.data());
+      if (snap.exists()) { state = normalize(snap.data()); loadedRemote = true; }
       online = true;
       onSnapshot(docRef, (s) => { if (s.exists()) applyRemote(s.data()); });
       return true;
@@ -312,7 +356,7 @@
   function render() {
     root.innerHTML = `
       <header class="hero">
-        <p class="eyebrow">Janeiro de 2028 · Casamento na praia</p>
+        <p class="eyebrow">22 de janeiro de 2028</p>
         <h1>Malu <span class="amp">&amp;</span> Mateus</h1>
         <div class="date-line">
           <span class="sprig"></span>
@@ -385,7 +429,7 @@
   function renderItems() {
     const body = document.getElementById('items-body');
     if (!state.items.length) {
-      body.innerHTML = `<div class="empty"><div class="ico">∿</div><p>Nenhum item cadastrado ainda. Que tal começar pelos clássicos?</p><div class="actions"><button class="btn" id="seed-items"><span class="plus">+</span> Começar com exemplos</button><button class="btn ghost" id="add-item-empty">Adicionar em branco</button></div></div>`;
+      body.innerHTML = `<div class="empty"><div class="ico">∿</div><p>A lista está vazia. Quer trazer de volta a lista sugerida de itens?</p><div class="actions"><button class="btn" id="seed-items"><span class="plus">+</span> Carregar lista sugerida</button><button class="btn ghost" id="add-item-empty">Adicionar em branco</button></div></div>`;
       document.getElementById('seed-items').onclick = seedItems;
       document.getElementById('add-item-empty').onclick = addItem; return;
     }
@@ -485,8 +529,7 @@
   function addItem() { state.items.push({ id:uid(), name:'', category:'', estimated:'', paid:'' }); renderItems(); recalcSummary(); scheduleSave(); focusLast('#items-body .row:last-child .cell-input'); }
   function addPayment() { state.payments.push({ id:uid(), date:'', description:'', value:'', status:'pendente' }); renderPayments(); scheduleSave(); focusLast('#pay-body .row:last-child .cell-desc'); }
   function seedItems() {
-    [['Vestido da noiva','Vestido & Traje'],['Traje do noivo','Vestido & Traje'],['Decoração','Decoração'],['Buffet','Buffet & Bar'],['Bar de drinks','Buffet & Bar'],['Banda / música','Música & Banda'],['Fotografia e vídeo','Fotografia & Vídeo'],['Caixa dos padrinhos','Padrinhos'],['Convites','Convites & Papelaria'],['Bolo e doces','Bolo & Doces']]
-      .forEach(([name,category]) => state.items.push({ id:uid(), name, category, estimated:'', paid:'' }));
+    state.items = buildDefaultItems();
     renderItems(); recalcSummary(); scheduleSave();
   }
   function resetAll() { if (!confirm('Tem certeza que deseja apagar todos os itens e pagamentos? Essa ação não pode ser desfeita.')) return; state = { weddingDate:'', items:[], payments:[] }; render(); scheduleSave(); }
@@ -514,7 +557,11 @@
   function focusLast(sel){ requestAnimationFrame(()=>{ const el=document.querySelector(sel); if(el) el.focus(); }); }
 
   // ---------- Boot ----------
-  async function start() { await initBackend(); render(); }
+  async function start() {
+    await initBackend();
+    if (!loadedRemote && !state.items.length) state.items = buildDefaultItems();
+    render();
+  }
 
   function bootGate() {
     if (!ACCESS_CODE || sessionStorage.getItem('mm-unlocked') === '1') { start(); return; }
