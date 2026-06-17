@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malu & Mateus — Controle do Casamento</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --ivory: #FBF8F2; --paper: #FFFFFF; --eucalipto: #2E483B; --eucalipto-claro: #4A6A5A;
+    --blush: #C68A7B; --blush-soft: #EBD5CD; --brass: #AE894F; --ink: #2A2622; --muted: #8A857C;
+    --line: #E8E1D6; --pago: #3E6B52; --pendente: #B5743F; --acima: #B14A42;
+  }
+  * , *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: var(--ivory);
+    line-height: 1.5; min-height: 100vh; margin: 0; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ---------- config banner ---------- */
+  .banner {
+    background: #FBF1E5; border: 1px solid #ECD9BE; color: #8a6a39;
+    border-radius: 14px; padding: 14px 18px; margin: 20px auto 0; max-width: 1012px;
+    font-size: 13.5px; text-align: center;
+  }
+  .banner code { background: #fff; padding: 2px 6px; border-radius: 6px; border: 1px solid #ECD9BE; }
+
+  /* ---------- HERO ---------- */
+  .hero { text-align: center; padding: 64px 24px 40px; }
+  .hero .eyebrow { font-size: 12px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--brass); font-weight: 600; margin-bottom: 18px; }
+  .hero h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(44px, 9vw, 88px); line-height: 0.98; margin: 0; color: var(--eucalipto); letter-spacing: 0.01em; }
+  .hero h1 .amp { font-style: italic; color: var(--blush); font-weight: 400; padding: 0 0.12em; }
+  .date-line { margin-top: 22px; display: inline-flex; align-items: center; gap: 14px; color: var(--muted); font-size: 14px; }
+  .date-line .sprig { width: 46px; height: 1px; background: linear-gradient(90deg, transparent, var(--brass)); }
+  .date-line .sprig.flip { background: linear-gradient(90deg, var(--brass), transparent); }
+  .date-line input { border: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--eucalipto-claro); text-align: center; width: 180px; padding: 4px 2px; border-bottom: 1px dashed var(--line); }
+  .date-line input:focus { outline: none; border-bottom-color: var(--brass); }
+
+  /* ---------- DASHBOARD ---------- */
+  .dash { background: var(--paper); border: 1px solid var(--line); border-radius: 20px; padding: 32px; box-shadow: 0 22px 50px -34px rgba(46,72,59,0.4); }
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { text-align: center; padding: 6px 12px; position: relative; }
+  .stat + .stat::before { content: ""; position: absolute; left: 0; top: 14%; height: 72%; width: 1px; background: var(--line); }
+  .stat .label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  .stat .value { font-family: 'Cormorant Garamond', serif; font-size: clamp(26px, 4.4vw, 38px); font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat.estimado .value { color: var(--eucalipto); }
+  .stat.pago .value { color: var(--pago); }
+  .stat.pendente .value { color: var(--pendente); }
+  .thermo { margin-top: 28px; }
+  .thermo-track { height: 14px; border-radius: 999px; background: var(--blush-soft); overflow: hidden; position: relative; box-shadow: inset 0 1px 2px rgba(0,0,0,0.06); }
+  .thermo-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--eucalipto-claro), var(--pago)); width: 0%; transition: width 0.5s cubic-bezier(.2,.7,.2,1); }
+  .thermo-meta { display: flex; justify-content: space-between; align-items: baseline; margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .thermo-meta strong { color: var(--eucalipto); font-weight: 600; }
+
+  /* ---------- SECTIONS ---------- */
+  .section { margin-top: 56px; }
+  .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 6px; flex-wrap: wrap; }
+  .sec-head h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 32px; color: var(--eucalipto); margin: 0; letter-spacing: 0.01em; }
+  .sec-head .sub { color: var(--muted); font-size: 13.5px; margin: 4px 0 0; }
+  .sec-rule { height: 1px; background: var(--line); margin: 16px 0 20px; position: relative; }
+  .sec-rule::after { content: "✿"; position: absolute; left: 0; top: -10px; background: var(--ivory); color: var(--blush); font-size: 13px; padding-right: 10px; }
+
+  .btn { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13.5px; border-radius: 999px; padding: 11px 20px; cursor: pointer; border: 1px solid var(--eucalipto); background: var(--eucalipto); color: #fff; transition: transform .12s ease, box-shadow .2s ease, background .2s ease; display: inline-flex; align-items: center; gap: 8px; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -12px rgba(46,72,59,0.6); }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost { background: transparent; color: var(--eucalipto); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--eucalipto); box-shadow: none; }
+  .btn .plus { font-size: 17px; line-height: 0; margin-top: -1px; }
+
+  /* ---------- TABLE ---------- */
+  .table { width: 100%; }
+  .thead { display: grid; align-items: center; grid-template-columns: 2fr 1.3fr 1.1fr 1.1fr 1.1fr 1.2fr 36px; gap: 12px; padding: 0 16px 12px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .thead .num { text-align: right; }
+  .row { display: grid; align-items: center; grid-template-columns: 2fr 1.3fr 1.1fr 1.1fr 1.1fr 1.2fr 36px; gap: 12px; padding: 12px 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 8px; transition: box-shadow .2s ease, border-color .2s ease; }
+  .row:focus-within { border-color: var(--brass); box-shadow: 0 10px 26px -18px rgba(46,72,59,0.45); }
+  .cell-input, .cell-num, .cell-cat, .cell-date, .cell-desc { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--ink); border: none; background: transparent; width: 100%; padding: 6px 8px; border-radius: 8px; }
+  .cell-input { font-weight: 500; }
+  .cell-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .cell-input:focus, .cell-num:focus, .cell-cat:focus, .cell-date:focus, .cell-desc:focus { outline: none; background: #F6F2EA; box-shadow: inset 0 0 0 1px var(--line); }
+  .cell-input::placeholder, .cell-num::placeholder, .cell-cat::placeholder, .cell-desc::placeholder { color: #C4BDB1; }
+  .num-wrap { position: relative; }
+  .num-wrap::before { content: "R$"; position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #BCB4A6; pointer-events: none; }
+  .num-wrap .cell-num { padding-left: 24px; }
+  .pending-cell { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 14px; padding-right: 8px; }
+  .pending-cell.zero { color: var(--pago); }
+  .pending-cell.due { color: var(--pendente); }
+  .pending-cell.over { color: var(--acima); }
+  .item-progress { height: 4px; border-radius: 999px; background: var(--blush-soft); margin-top: 8px; overflow: hidden; grid-column: 1 / -1; }
+  .item-progress > span { display: block; height: 100%; background: var(--pago); border-radius: 999px; transition: width .4s ease; }
+  .status { justify-self: start; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+  .status.pago { background: #E4EEE6; color: var(--pago); }
+  .status.parcial { background: #F3E7D6; color: var(--pendente); }
+  .status.pendente { background: #F6E9DE; color: var(--blush); }
+  .status.acima { background: #F6E0DD; color: var(--acima); }
+  .status.vazio { background: #F0ECE4; color: var(--muted); }
+  .del { border: none; background: transparent; color: #C9C1B4; cursor: pointer; font-size: 17px; line-height: 1; padding: 6px; border-radius: 8px; justify-self: center; transition: color .15s ease, background .15s ease; }
+  .del:hover { color: var(--acima); background: #F8ECEA; }
+  .thead.pay, .row.pay { grid-template-columns: 1.1fr 2.2fr 1.2fr 1.2fr 36px; }
+  .status-select { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; background: var(--paper); color: var(--ink); cursor: pointer; width: 100%; }
+  .status-select:focus { outline: none; border-color: var(--brass); }
+  .status-select.is-pago { color: var(--pago); border-color: #CFE0D4; background: #F1F7F2; }
+  .status-select.is-pendente { color: var(--pendente); border-color: #ECDBC4; background: #FBF4EA; }
+  .empty { text-align: center; padding: 44px 24px; background: var(--paper); border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); }
+  .empty p { margin: 0 0 18px; font-size: 14px; }
+  .empty .ico { font-size: 28px; color: var(--blush); margin-bottom: 10px; }
+  .empty .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .pay-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .chip { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; font-size: 13px; color: var(--muted); }
+  .chip strong { display: block; font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .chip.pago strong { color: var(--pago); }
+  .chip.pendente strong { color: var(--pendente); }
+  .chip.total strong { color: var(--eucalipto); }
+
+  .foot { margin-top: 64px; text-align: center; color: var(--muted); font-size: 12.5px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .foot .save-state { display: inline-flex; align-items: center; gap: 7px; }
+  .foot .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--pago); transition: background .2s; }
+  .foot .dot.saving { background: var(--brass); }
+  .foot .dot.offline { background: var(--acima); }
+  .link-btn { background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 12.5px; font-family: inherit; }
+  .link-btn:hover { color: var(--acima); }
+  .loading { text-align: center; padding: 100px 20px; color: var(--muted); font-family: 'Cormorant Garamond', serif; font-size: 22px; }
+
+  /* ---------- gate ---------- */
+  .gate { position: fixed; inset: 0; background: var(--ivory); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
+  .gate-card { text-align: center; max-width: 360px; width: 100%; }
+  .gate-card .ico { font-size: 40px; }
+  .gate-card h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 34px; color: var(--eucalipto); margin: 10px 0 6px; }
+  .gate-card p { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+  .gate-card input { width: 100%; text-align: center; font-size: 16px; font-family: 'Inter', sans-serif; padding: 13px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); margin-bottom: 12px; }
+  .gate-card input:focus { outline: none; border-color: var(--brass); }
+  .gate-card .err { color: var(--acima); font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+  .gate-card .btn { width: 100%; justify-content: center; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 14px 60px; }
+    .stat-row { grid-template-columns: 1fr; gap: 4px; }
+    .stat + .stat::before { display: none; }
+    .stat { padding: 14px; border-top: 1px solid var(--line); }
+    .stat:first-child { border-top: none; }
+    .dash { padding: 22px; border-radius: 16px; }
+    .thead { display: none; }
+    .row, .row.pay { grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 16px; position: relative; }
+    .row > * { min-width: 0; }
+    .cell-input { grid-column: 1 / -1; font-size: 16px; }
+    .cell-cat { grid-column: 1 / -1; }
+    .row .mobile-label { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; font-weight: 600; }
+    .field { display: flex; flex-direction: column; }
+    .field .cell-num { text-align: left; }
+    .num-wrap .cell-num { padding-left: 24px; }
+    .del { position: absolute; top: 10px; right: 10px; }
+    .row.pay .cell-date, .row.pay .cell-desc { grid-column: 1 / -1; }
+  }
+  .mobile-label { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ====== TELA DE ACESSO ====== -->
+<div class="gate hidden" id="gate">
+  <div class="gate-card">
+    <div class="ico">🔒</div>
+    <h2>Malu &amp; Mateus</h2>
+    <p>Digite o código de acesso para abrir o controle do casamento.</p>
+    <input type="password" id="gate-input" placeholder="código de acesso" autocomplete="off">
+    <div class="err" id="gate-err"></div>
+    <button class="btn" id="gate-btn">Entrar</button>
+  </div>
+</div>
+
+<!-- ====== APP ====== -->
+<div class="wrap" id="content">
+  <div class="loading">Preparando o álbum dos sonhos…</div>
+</div>
+
+<script type="module">
+  // ============================================================
+  //  1) COLE AQUI A CONFIG DO SEU PROJETO FIREBASE
+  //     (Console Firebase > Configurações do projeto > Seus apps > Web)
+  // ============================================================
+  const firebaseConfig = {
+    apiKey: "COLE_AQUI",
+    authDomain: "COLE_AQUI.firebaseapp.com",
+    projectId: "COLE_AQUI",
+    storageBucket: "COLE_AQUI.appspot.com",
+    messagingSenderId: "COLE_AQUI",
+    appId: "COLE_AQUI"
+  };
+
+  // 2) Código de acesso (mude para algo só de vocês). Deixe "" para não pedir senha.
+  const ACCESS_CODE = "malu-mateus";
+
+  // ============================================================
+  //  Daqui pra baixo não precisa mexer.
+  // ============================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const FB_READY = firebaseConfig.apiKey && firebaseConfig.apiKey !== "COLE_AQUI";
+  const root = document.getElementById('content');
+  let db, docRef, lastRev = null, pendingRemote = null, saveTimer = null, online = false;
+
+  let state = { weddingDate: '', items: [], payments: [] };
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const brl = (n) => (isFinite(n) ? n : 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const parseNum = (v) => {
+    if (typeof v === 'number') return v;
+    if (!v) return 0;
+    const c = String(v).replace(/[^\d.,-]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.');
+    const n = parseFloat(c); return isFinite(n) ? n : 0;
+  };
+  const CATS = ['Local & Cerimônia','Vestido & Traje','Decoração','Buffet & Bar','Música & Banda','Fotografia & Vídeo','Convites & Papelaria','Padrinhos','Bolo & Doces','Lua de mel','Outros'];
+
+  // ---------- Backend (Firestore) ----------
+  function normalize(d) { return { weddingDate: d.weddingDate || '', items: Array.isArray(d.items) ? d.items : [], payments: Array.isArray(d.payments) ? d.payments : [] }; }
+  function isEditing() { const a = document.activeElement; return a && root.contains(a) && /INPUT|SELECT|TEXTAREA/.test(a.tagName); }
+
+  function applyRemote(data) {
+    if (data._rev && data._rev === lastRev) return;       // ignora o eco da própria gravação
+    if (isEditing()) { pendingRemote = data; return; }     // não atrapalha quem está digitando
+    state = normalize(data); render();
+  }
+
+  async function initBackend() {
+    if (!FB_READY) { setBanner(true); return false; }
+    try {
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      db = getFirestore(app);
+      await signInAnonymously(auth);
+      await new Promise((res) => onAuthStateChanged(auth, (u) => u && res()));
+      docRef = doc(db, 'casamento', 'dados');
+      const snap = await getDoc(docRef);
+      if (snap.exists()) state = normalize(snap.data());
+      online = true;
+      onSnapshot(docRef, (s) => { if (s.exists()) applyRemote(s.data()); });
+      return true;
+    } catch (e) {
+      console.error('Firebase:', e); online = false; setBanner(true, e.message); return false;
+    }
+  }
+  function setBanner(show, msg) {
+    let b = document.getElementById('cfg-banner');
+    if (!show) { if (b) b.remove(); return; }
+    if (!b) { b = document.createElement('div'); b.id = 'cfg-banner'; b.className = 'banner'; document.body.insertBefore(b, document.body.firstChild); }
+    b.innerHTML = msg
+      ? `⚠️ Não foi possível conectar ao Firebase: ${msg}. Os dados não estão sendo salvos online.`
+      : `⚙️ Modo demonstração — preencha a <code>firebaseConfig</code> no <code>index.html</code> para salvar online.`;
+  }
+  function scheduleSave() {
+    setSaveState('saving');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 700);
+  }
+  async function doSave() {
+    if (!docRef) { setSaveState('saved'); return; }
+    lastRev = uid();
+    try {
+      await setDoc(docRef, { weddingDate: state.weddingDate, items: state.items, payments: state.payments, _rev: lastRev, _updated: Date.now() });
+      setSaveState('saved');
+    } catch (e) { console.error(e); setSaveState('offline'); }
+  }
+  function setSaveState(s) {
+    const dot = document.querySelector('.foot .dot'), txt = document.querySelector('.foot .save-txt');
+    if (!dot || !txt) return;
+    dot.classList.remove('saving', 'offline');
+    if (s === 'saving') { dot.classList.add('saving'); txt.textContent = 'salvando…'; }
+    else if (s === 'offline') { dot.classList.add('offline'); txt.textContent = 'sem conexão — não foi salvo'; }
+    else { txt.textContent = online ? 'salvo na nuvem' : 'salvo neste dispositivo'; }
+  }
+
+  // ---------- Render ----------
+  function render() {
+    root.innerHTML = `
+      <header class="hero">
+        <p class="eyebrow">Controle do casamento</p>
+        <h1>Malu <span class="amp">&amp;</span> Mateus</h1>
+        <div class="date-line">
+          <span class="sprig"></span>
+          <input id="wedding-date" type="text" placeholder="data do casamento" value="${escAttr(state.weddingDate)}" aria-label="Data do casamento">
+          <span class="sprig flip"></span>
+        </div>
+        <div class="dash" style="margin-top:34px">
+          <div class="stat-row">
+            <div class="stat estimado"><div class="label">Orçamento previsto</div><div class="value" id="t-est">—</div></div>
+            <div class="stat pago"><div class="label">Já pago</div><div class="value" id="t-pago">—</div></div>
+            <div class="stat pendente"><div class="label">Falta pagar</div><div class="value" id="t-pend">—</div></div>
+          </div>
+          <div class="thermo">
+            <div class="thermo-track"><div class="thermo-fill" id="thermo-fill"></div></div>
+            <div class="thermo-meta">
+              <span id="thermo-pct"><strong>0%</strong> do orçamento já quitado</span>
+              <span id="thermo-count"></span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section">
+        <div class="sec-head">
+          <div><h2>Itens do casamento</h2><p class="sub">Cadastre cada item, o valor previsto e o quanto já foi pago. O que falta é calculado sozinho.</p></div>
+          <button class="btn" id="add-item"><span class="plus">+</span> Adicionar item</button>
+        </div>
+        <div class="sec-rule"></div>
+        <div class="table">
+          <div class="thead"><span>Item</span><span>Categoria</span><span class="num">Previsto</span><span class="num">Pago</span><span class="num">Falta</span><span>Status</span><span></span></div>
+          <div id="items-body"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="sec-head">
+          <div><h2>Planejamento de pagamentos</h2><p class="sub">Organize as parcelas e datas. Marque cada uma como paga ou pendente.</p></div>
+          <button class="btn" id="add-pay"><span class="plus">+</span> Adicionar pagamento</button>
+        </div>
+        <div class="sec-rule"></div>
+        <div class="pay-summary" id="pay-summary"></div>
+        <div class="table">
+          <div class="thead pay"><span>Data</span><span>Descrição</span><span class="num">Valor</span><span>Situação</span><span></span></div>
+          <div id="pay-body"></div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <span class="save-state"><span class="dot"></span><span class="save-txt">—</span></span>
+        <button class="link-btn" id="reset">Apagar tudo e recomeçar</button>
+        <span style="opacity:.7">Feito com carinho para a Malu e o Mateus ♥</span>
+      </footer>`;
+    renderItems(); renderPayments(); recalcSummary(); bindGlobal(); setSaveState('saved');
+  }
+
+  function itemRow(it) {
+    const est = parseNum(it.estimated), paid = parseNum(it.paid), pend = est - paid;
+    const st = statusFor(est, paid), pct = est > 0 ? Math.min(100, Math.round((paid / est) * 100)) : 0;
+    return `<div class="row" data-id="${it.id}">
+      <input class="cell-input" data-f="name" value="${escAttr(it.name)}" placeholder="Ex: Vestido da noiva">
+      <input class="cell-cat" data-f="category" list="cat-list" value="${escAttr(it.category)}" placeholder="Categoria">
+      <div class="field"><span class="mobile-label">Previsto</span><div class="num-wrap"><input class="cell-num" data-f="estimated" inputmode="decimal" value="${fmtInput(it.estimated)}" placeholder="0,00"></div></div>
+      <div class="field"><span class="mobile-label">Pago</span><div class="num-wrap"><input class="cell-num" data-f="paid" inputmode="decimal" value="${fmtInput(it.paid)}" placeholder="0,00"></div></div>
+      <div class="field"><span class="mobile-label">Falta</span><div class="pending-cell ${pend>0?'due':pend<0?'over':'zero'}" data-out="pending">${brl(pend)}</div></div>
+      <span class="status ${st.cls}" data-out="status">${st.label}</span>
+      <button class="del" title="Remover item" aria-label="Remover item">✕</button>
+      <div class="item-progress"><span data-out="bar" style="width:${pct}%"></span></div>
+    </div>`;
+  }
+  function renderItems() {
+    const body = document.getElementById('items-body');
+    if (!state.items.length) {
+      body.innerHTML = `<div class="empty"><div class="ico">✿</div><p>Nenhum item cadastrado ainda. Que tal começar pelos clássicos?</p><div class="actions"><button class="btn" id="seed-items"><span class="plus">+</span> Começar com exemplos</button><button class="btn ghost" id="add-item-empty">Adicionar em branco</button></div></div>`;
+      document.getElementById('seed-items').onclick = seedItems;
+      document.getElementById('add-item-empty').onclick = addItem; return;
+    }
+    body.innerHTML = `<datalist id="cat-list">${CATS.map(c=>`<option value="${c}">`).join('')}</datalist>` + state.items.map(itemRow).join('');
+    body.querySelectorAll('.row').forEach(bindItemRow);
+  }
+  function payRow(p) {
+    const isPago = p.status === 'pago';
+    return `<div class="row pay" data-id="${p.id}">
+      <div class="field"><span class="mobile-label">Data</span><input class="cell-date" data-f="date" type="date" value="${escAttr(p.date)}"></div>
+      <div class="field"><span class="mobile-label">Descrição</span><input class="cell-desc" data-f="description" value="${escAttr(p.description)}" placeholder="Ex: Sinal do buffet"></div>
+      <div class="field"><span class="mobile-label">Valor</span><div class="num-wrap"><input class="cell-num" data-f="value" inputmode="decimal" value="${fmtInput(p.value)}" placeholder="0,00"></div></div>
+      <select class="status-select ${isPago?'is-pago':'is-pendente'}" data-f="status"><option value="pendente" ${!isPago?'selected':''}>● Pendente</option><option value="pago" ${isPago?'selected':''}>✓ Pago</option></select>
+      <button class="del" title="Remover pagamento" aria-label="Remover pagamento">✕</button>
+    </div>`;
+  }
+  function renderPayments() {
+    const body = document.getElementById('pay-body');
+    const sorted = [...state.payments].sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
+    if (!state.payments.length) {
+      body.innerHTML = `<div class="empty"><div class="ico">❧</div><p>Sem pagamentos planejados ainda. Adicione as parcelas, sinais e datas importantes.</p><div class="actions"><button class="btn" id="add-pay-empty"><span class="plus">+</span> Adicionar pagamento</button></div></div>`;
+      document.getElementById('add-pay-empty').onclick = addPayment;
+    } else {
+      body.innerHTML = sorted.map(payRow).join('');
+      body.querySelectorAll('.row.pay').forEach(bindPayRow);
+    }
+    renderPaySummary();
+  }
+  function renderPaySummary() {
+    const el = document.getElementById('pay-summary');
+    if (!state.payments.length) { el.innerHTML = ''; return; }
+    let pago=0, pend=0;
+    state.payments.forEach(p=>{ const v=parseNum(p.value); p.status==='pago'?pago+=v:pend+=v; });
+    el.innerHTML = `<div class="chip total">No plano de pagamentos<strong>${brl(pago+pend)}</strong></div><div class="chip pago">Já quitado<strong>${brl(pago)}</strong></div><div class="chip pendente">A pagar<strong>${brl(pend)}</strong></div>`;
+  }
+
+  // ---------- Bindings ----------
+  function bindItemRow(rowEl) {
+    const id = rowEl.dataset.id;
+    rowEl.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const it = state.items.find(x=>x.id===id); if (!it) return;
+        it[inp.dataset.f] = inp.value; recalcItemRow(rowEl, it); recalcSummary(); scheduleSave();
+      });
+    });
+    rowEl.querySelector('.del').addEventListener('click', () => { state.items = state.items.filter(x=>x.id!==id); renderItems(); recalcSummary(); scheduleSave(); });
+  }
+  function bindPayRow(rowEl) {
+    const id = rowEl.dataset.id;
+    rowEl.querySelectorAll('input, select').forEach(inp => {
+      inp.addEventListener(inp.tagName==='SELECT'?'change':'input', () => {
+        const p = state.payments.find(x=>x.id===id); if (!p) return;
+        p[inp.dataset.f] = inp.value;
+        if (inp.dataset.f==='status') { inp.classList.toggle('is-pago', inp.value==='pago'); inp.classList.toggle('is-pendente', inp.value!=='pago'); }
+        renderPaySummary(); scheduleSave();
+      });
+    });
+    rowEl.querySelector('.del').addEventListener('click', () => { state.payments = state.payments.filter(x=>x.id!==id); renderPayments(); scheduleSave(); });
+  }
+  function bindGlobal() {
+    document.getElementById('wedding-date').addEventListener('input', e => { state.weddingDate = e.target.value; scheduleSave(); });
+    document.getElementById('add-item').onclick = addItem;
+    document.getElementById('add-pay').onclick = addPayment;
+    document.getElementById('reset').onclick = resetAll;
+    root.addEventListener('focusout', () => { if (pendingRemote && !isEditing()) { const d = pendingRemote; pendingRemote = null; applyRemote(d); } });
+  }
+
+  // ---------- Recalc ----------
+  function recalcItemRow(rowEl, it) {
+    const est = parseNum(it.estimated), paid = parseNum(it.paid), pend = est - paid;
+    const out = rowEl.querySelector('[data-out="pending"]');
+    out.textContent = brl(pend); out.className = 'pending-cell ' + (pend>0?'due':pend<0?'over':'zero');
+    const st = statusFor(est, paid), stEl = rowEl.querySelector('[data-out="status"]');
+    stEl.textContent = st.label; stEl.className = 'status ' + st.cls;
+    rowEl.querySelector('[data-out="bar"]').style.width = (est>0?Math.min(100,Math.round((paid/est)*100)):0) + '%';
+  }
+  function recalcSummary() {
+    let est=0, paid=0;
+    state.items.forEach(it=>{ est+=parseNum(it.estimated); paid+=parseNum(it.paid); });
+    setText('t-est', brl(est)); setText('t-pago', brl(paid)); setText('t-pend', brl(est-paid));
+    const pct = est>0?Math.min(100,Math.round((paid/est)*100)):0;
+    document.getElementById('thermo-fill').style.width = pct+'%';
+    document.getElementById('thermo-pct').innerHTML = `<strong>${pct}%</strong> do orçamento já quitado`;
+    const n = state.items.length;
+    document.getElementById('thermo-count').textContent = n ? `${n} ${n===1?'item':'itens'} no controle` : '';
+  }
+  function statusFor(est, paid) {
+    if (est<=0 && paid<=0) return { cls:'vazio', label:'A definir' };
+    if (paid>est) return { cls:'acima', label:'Acima' };
+    if (paid>=est && est>0) return { cls:'pago', label:'Pago' };
+    if (paid>0) return { cls:'parcial', label:'Parcial' };
+    return { cls:'pendente', label:'Pendente' };
+  }
+
+  // ---------- Actions ----------
+  function addItem() { state.items.push({ id:uid(), name:'', category:'', estimated:'', paid:'' }); renderItems(); recalcSummary(); scheduleSave(); focusLast('#items-body .row:last-child .cell-input'); }
+  function addPayment() { state.payments.push({ id:uid(), date:'', description:'', value:'', status:'pendente' }); renderPayments(); scheduleSave(); focusLast('#pay-body .row:last-child .cell-desc'); }
+  function seedItems() {
+    [['Vestido da noiva','Vestido & Traje'],['Traje do noivo','Vestido & Traje'],['Decoração','Decoração'],['Buffet','Buffet & Bar'],['Bar de drinks','Buffet & Bar'],['Banda / música','Música & Banda'],['Fotografia e vídeo','Fotografia & Vídeo'],['Caixa dos padrinhos','Padrinhos'],['Convites','Convites & Papelaria'],['Bolo e doces','Bolo & Doces']]
+      .forEach(([name,category]) => state.items.push({ id:uid(), name, category, estimated:'', paid:'' }));
+    renderItems(); recalcSummary(); scheduleSave();
+  }
+  function resetAll() { if (!confirm('Tem certeza que deseja apagar todos os itens e pagamentos? Essa ação não pode ser desfeita.')) return; state = { weddingDate:'', items:[], payments:[] }; render(); scheduleSave(); }
+
+  // ---------- Helpers ----------
+  function setText(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+  function escAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtInput(v){ if(v===''||v==null) return ''; const n=parseNum(v); return n?n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):escAttr(v); }
+  function focusLast(sel){ requestAnimationFrame(()=>{ const el=document.querySelector(sel); if(el) el.focus(); }); }
+
+  // ---------- Boot ----------
+  async function start() { await initBackend(); render(); }
+
+  function bootGate() {
+    if (!ACCESS_CODE || sessionStorage.getItem('mm-unlocked') === '1') { start(); return; }
+    const gate = document.getElementById('gate'), input = document.getElementById('gate-input'), err = document.getElementById('gate-err'), btn = document.getElementById('gate-btn');
+    gate.classList.remove('hidden'); input.focus();
+    const tryUnlock = () => {
+      if (input.value.trim() === ACCESS_CODE) { sessionStorage.setItem('mm-unlocked','1'); gate.classList.add('hidden'); start(); }
+      else { err.textContent = 'Código incorreto. Tente de novo.'; input.value=''; input.focus(); }
+    };
+    btn.onclick = tryUnlock;
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+  }
+
+  bootGate();
+</script>
+</body>
+</html>
