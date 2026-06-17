@@ -2,9 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Malu & Mateus">
+<meta name="format-detection" content="telephone=no">
 <title>Malu & Mateus — Controle do Casamento</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23FBF8F2'/><text x='50' y='52' font-size='58' text-anchor='middle' dominant-baseline='central'>💍</text></svg>">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -14,11 +20,26 @@
     --line: #E8E1D6; --pago: #3E6B52; --pendente: #B5743F; --acima: #B14A42;
   }
   * , *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
     font-family: 'Inter', system-ui, sans-serif; color: var(--ink); background: var(--ivory);
     line-height: 1.5; min-height: 100vh; margin: 0; -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none;
   }
-  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px 80px; }
+  button, input, select { -webkit-tap-highlight-color: transparent; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 max(24px, env(safe-area-inset-left)) calc(80px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-right)); }
+
+  /* ---------- resumo fixo (aparece ao rolar no celular) ---------- */
+  .sticky-total {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: none;
+    align-items: center; justify-content: space-between; gap: 12px;
+    padding: calc(11px + env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 11px max(20px, env(safe-area-inset-left));
+    background: rgba(251,248,242,0.92); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line); transform: translateY(-101%); transition: transform .28s ease;
+  }
+  .sticky-total.show { transform: translateY(0); }
+  .sticky-total .st-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .sticky-total .st-value { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 600; color: var(--pendente); font-variant-numeric: tabular-nums; line-height: 1; }
 
   /* ---------- config banner ---------- */
   .banner {
@@ -136,7 +157,9 @@
   .hidden { display: none !important; }
 
   @media (max-width: 760px) {
-    .wrap { padding: 0 14px 60px; }
+    .wrap { padding: 0 max(14px, env(safe-area-inset-left)) calc(60px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-right)); }
+    .hero { padding-top: calc(48px + env(safe-area-inset-top)); }
+    .sticky-total { display: flex; }
     .stat-row { grid-template-columns: 1fr; gap: 4px; }
     .stat + .stat::before { display: none; }
     .stat { padding: 14px; border-top: 1px solid var(--line); }
@@ -145,14 +168,20 @@
     .thead { display: none; }
     .row, .row.pay { grid-template-columns: 1fr 1fr; gap: 8px 12px; padding: 16px; position: relative; }
     .row > * { min-width: 0; }
-    .cell-input { grid-column: 1 / -1; font-size: 16px; }
+    .cell-input { grid-column: 1 / -1; }
     .cell-cat { grid-column: 1 / -1; }
+    /* 16px evita o zoom automático do iOS ao focar o campo */
+    .cell-input, .cell-num, .cell-cat, .cell-date, .cell-desc, .date-line input { font-size: 16px; }
+    .status-select { font-size: 16px; padding: 11px 12px; }
     .row .mobile-label { display: block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; font-weight: 600; }
     .field { display: flex; flex-direction: column; }
     .field .cell-num { text-align: left; }
     .num-wrap .cell-num { padding-left: 24px; }
-    .del { position: absolute; top: 10px; right: 10px; }
+    .del { position: absolute; top: 8px; right: 8px; font-size: 19px; padding: 10px; }
     .row.pay .cell-date, .row.pay .cell-desc { grid-column: 1 / -1; }
+    .btn { padding: 13px 22px; }
+    .sec-head .btn { width: 100%; justify-content: center; }
+    .empty .actions .btn { width: 100%; }
   }
   .mobile-label { display: none; }
 </style>
@@ -169,6 +198,12 @@
     <div class="err" id="gate-err"></div>
     <button class="btn" id="gate-btn">Entrar</button>
   </div>
+</div>
+
+<!-- ====== RESUMO FIXO (celular) ====== -->
+<div class="sticky-total" id="sticky-total" aria-hidden="true">
+  <span class="st-label">Falta pagar</span>
+  <span class="st-value" id="st-value">—</span>
 </div>
 
 <!-- ====== APP ====== -->
@@ -330,7 +365,7 @@
         <button class="link-btn" id="reset">Apagar tudo e recomeçar</button>
         <span style="opacity:.7">Feito com carinho para a Malu e o Mateus ♥</span>
       </footer>`;
-    renderItems(); renderPayments(); recalcSummary(); bindGlobal(); setSaveState('saved');
+    renderItems(); renderPayments(); recalcSummary(); bindGlobal(); setSaveState('saved'); setupStickyBar();
   }
 
   function itemRow(it) {
@@ -431,6 +466,7 @@
     let est=0, paid=0;
     state.items.forEach(it=>{ est+=parseNum(it.estimated); paid+=parseNum(it.paid); });
     setText('t-est', brl(est)); setText('t-pago', brl(paid)); setText('t-pend', brl(est-paid));
+    setText('st-value', brl(est-paid));
     const pct = est>0?Math.min(100,Math.round((paid/est)*100)):0;
     document.getElementById('thermo-fill').style.width = pct+'%';
     document.getElementById('thermo-pct').innerHTML = `<strong>${pct}%</strong> do orçamento já quitado`;
@@ -454,6 +490,22 @@
     renderItems(); recalcSummary(); scheduleSave();
   }
   function resetAll() { if (!confirm('Tem certeza que deseja apagar todos os itens e pagamentos? Essa ação não pode ser desfeita.')) return; state = { weddingDate:'', items:[], payments:[] }; render(); scheduleSave(); }
+
+  // ---------- Resumo fixo ----------
+  let dashObserver = null;
+  function setupStickyBar() {
+    const dash = root.querySelector('.dash');
+    const bar = document.getElementById('sticky-total');
+    if (!dash || !bar) return;
+    if (dashObserver) dashObserver.disconnect();
+    dashObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        const scrolledPast = !e.isIntersecting && e.boundingClientRect.top < 0;
+        bar.classList.toggle('show', scrolledPast);
+      });
+    }, { threshold: 0 });
+    dashObserver.observe(dash);
+  }
 
   // ---------- Helpers ----------
   function setText(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
